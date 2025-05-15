@@ -8,4 +8,5 @@ export default {
   port: process.env.PORT,
   saltRounds: process.env.SALT_ROUNDS,
   secret: process.env.SECRET,
+  token_expired_time: process.env.TOKEN_EXPIRED_TIME,
 };
