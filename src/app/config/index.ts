@@ -6,4 +6,6 @@ dotenv.config({ path: path.join(process.cwd(), ".env") });
 export default {
   mongooose_uri: process.env.MONGOOSE_URL,
   port: process.env.PORT,
+  saltRounds: process.env.SALT_ROUNDS,
+  secret: process.env.SECRET,
 };
