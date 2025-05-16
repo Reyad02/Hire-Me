@@ -8,7 +8,7 @@ const createJobs = async (req: Request, res: Response) => {
     const validateJobDetails = jobsValidation.parse(req?.body);
     const updatedJobDetails = {
       ...validateJobDetails,
-      postedBy: new mongoose.Types.ObjectId(validateJobDetails?.postedBy),
+      postedBy: new mongoose.Types.ObjectId(req?.loggedUser?.userId), // logged in user's userId set here
     };
     const result = await jobsServices.createJobs(updatedJobDetails);
     res.status(201).json({

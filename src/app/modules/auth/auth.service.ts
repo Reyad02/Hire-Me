@@ -19,7 +19,12 @@ const loginUser = async (loginInfo: IAuth) => {
     throw Error("Password didn't match");
   }
 
-  const token = createToken(isUserExist, config.token_expired_time as string);
+  const token = createToken(
+    isUserExist.email,
+    isUserExist.role,
+    String(isUserExist._id),
+    config.token_expired_time as string
+  );
 
   return token;
 };

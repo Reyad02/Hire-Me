@@ -3,6 +3,7 @@ import { JwtPayload } from "jsonwebtoken";
 import { decodeToken } from "../utils/token";
 import user from "../modules/user/user.model";
 import { RoleType } from "../types/userRole";
+import config from "../config";
 
 const userAccess = (...requiredRoles: RoleType[]) => {
   return async (req: Request, res: Response, next: NextFunction) => {
@@ -13,7 +14,7 @@ const userAccess = (...requiredRoles: RoleType[]) => {
         throw Error("You are not authorized!");
       }
 
-      const decoded = decodeToken(token) as JwtPayload;
+      const decoded = decodeToken(token, config.secret as string) as JwtPayload;
 
       const { email, userType } = decoded;
 

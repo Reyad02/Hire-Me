@@ -14,7 +14,7 @@ const jobApply = async (file: any, applicationInfo: IJobApplication) => {
   );
   applicationInfo.resume = secure_url;
   applicationInfo.paymentStatus = "paid";
-  applicationInfo.amount = 100;
+  applicationInfo.amount = applicationInfo.amount || 100;
 
   const result = await jobApplication.create(applicationInfo);
   return result;

@@ -2,7 +2,6 @@ import z from "zod";
 
 export const jobApplicationValidation = z.object({
   job: z.string({ required_error: "Job required" }),
-  applicant: z.string({ required_error: "Applicant required" }),
   resume: z.string().optional(),
   paymentStatus: z.enum(["pending", "paid"]).default("pending"),
   status: z.enum(["pending", "accepted", "rejected"]).default("pending"),

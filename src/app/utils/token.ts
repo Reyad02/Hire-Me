@@ -1,16 +1,19 @@
 import config from "../config";
-import { IUser } from "../modules/user/user.interface";
-import jwt, { SignOptions } from "jsonwebtoken";
-import { jwtDecode } from "jwt-decode";
+import jwt, { JwtPayload, SignOptions } from "jsonwebtoken";
 
-export const createToken = (userInfo: Partial<IUser>, expiredTime: string) => {
+export const createToken = (
+  email: string,
+  role: string,
+  userId: string,
+  expiredTime: string
+) => {
   return jwt.sign(
-    { email: userInfo.email, userType: userInfo.role },
+    { email, userType: role, userId },
     config.secret as string,
     { expiresIn: expiredTime } as SignOptions
   );
 };
 
-export const decodeToken = (token: string) => {
-  return jwtDecode(token);
+export const decodeToken = (token: string, secretKey: string) => {
+  return jwt.verify(token, secretKey) as JwtPayload;
 };

@@ -9,7 +9,7 @@ const applyJob = async (req: Request, res: Response) => {
     const updatedValidateJobApplication = {
       ...validateJobApplication,
       job: new mongoose.Types.ObjectId(validateJobApplication?.job),
-      applicant: new mongoose.Types.ObjectId(validateJobApplication?.applicant),
+      applicant: new mongoose.Types.ObjectId(req.loggedUser?.userId), // logged in user's userId set here  
     };
     const result = await jobApplicationServices.jobApply(
       req.file,
