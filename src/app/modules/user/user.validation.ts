@@ -7,3 +7,10 @@ export const userValidation = z.object({
     .enum(["job_seeker", "admin", "user"], { required_error: "Role required" })
     .default("job_seeker"),
 });
+
+export const userUpdateValidation = z.object({
+  name: z.string().optional(),
+  email: z.string().email().optional(),
+  password: z.string().optional(),
+  role: z.enum(["job_seeker", "admin", "user"]).optional(),
+});
