@@ -1,5 +1,4 @@
 import z from "zod";
-import { ObjectId } from "mongodb";
 
 export const jobsValidation = z.object({
   title: z.string({ required_error: "Title required" }),

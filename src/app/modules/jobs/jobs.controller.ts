@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { jobsValidation } from "./jobs.validation";
 import { jobsServices } from "./jobs.service";
-import mongoose, { Schema } from "mongoose";
+import mongoose from "mongoose";
 
 const createJobs = async (req: Request, res: Response) => {
   try {
@@ -25,6 +25,81 @@ const createJobs = async (req: Request, res: Response) => {
   }
 };
 
+const updateJobs = async (req: Request, res: Response) => {
+  try {
+    const { jobId } = req.params;
+    const result = await jobsServices.updateJobs(jobId, req?.body);
+    res.status(200).json({
+      success: true,
+      message: "Jobs updated successfully",
+      data: result,
+    });
+  } catch (err: any) {
+    res.json({
+      success: false,
+      message: err?.message,
+      stack: err?.stack,
+    });
+  }
+};
+
+const deleteJobs = async (req: Request, res: Response) => {
+  try {
+    const { jobId } = req.params;
+    const result = await jobsServices.deleteJobs(jobId);
+    res.status(200).json({
+      success: true,
+      message: "Jobs deleted successfully",
+      data: result,
+    });
+  } catch (err: any) {
+    res.json({
+      success: false,
+      message: err?.message,
+      stack: err?.stack,
+    });
+  }
+};
+
+const getJob = async (req: Request, res: Response) => {
+  try {
+    const { jobId } = req.params;
+    const result = await jobsServices.getJob(jobId);
+    res.status(200).json({
+      success: true,
+      message: "Jobs retrieved successfully",
+      data: result,
+    });
+  } catch (err: any) {
+    res.json({
+      success: false,
+      message: err?.message,
+      stack: err?.stack,
+    });
+  }
+};
+
+const getAllJobs = async (req: Request, res: Response) => {
+  try {
+    const result = await jobsServices.getAllJobs();
+    res.status(200).json({
+      success: true,
+      message: "Jobs retrieved successfully",
+      data: result,
+    });
+  } catch (err: any) {
+    res.json({
+      success: false,
+      message: err?.message,
+      stack: err?.stack,
+    });
+  }
+};
+
 export const jobsControllers = {
   createJobs,
+  updateJobs,
+  deleteJobs,
+  getJob,
+  getAllJobs,
 };
