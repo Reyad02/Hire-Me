@@ -16,4 +16,10 @@ jobApplicantsRoutes.post(
   jobApplicantsControllers.applyJob
 );
 
+jobApplicantsRoutes.patch(
+  "/:applicationId",
+  userAccess("admin", "user"),
+  jobApplicantsControllers.updateAppliedJob
+);
+
 export default jobApplicantsRoutes;
