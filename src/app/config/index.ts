@@ -9,4 +9,7 @@ export default {
   saltRounds: process.env.SALT_ROUNDS,
   secret: process.env.SECRET,
   token_expired_time: process.env.TOKEN_EXPIRED_TIME,
+  cloudinary_name: process.env.CLOUDINARY_NAME,
+  cloudinary_api: process.env.CLOUDINARY_API,
+  cloudinary_secret: process.env.CLOUDINARY_SECRET,
 };

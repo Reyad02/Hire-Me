@@ -1,3 +1,4 @@
+import { JwtPayload } from "jsonwebtoken";
 import user from "../user/user.model";
 import { IJobs } from "./jobs.interface";
 import jobs from "./jobs.model";
@@ -11,22 +12,46 @@ const createJobs = async (jobDetails: IJobs) => {
   return result;
 };
 
-const updateJobs = async (jobId: string, payload: Partial<IJobs>) => {
+const updateJobs = async (
+  jobId: string,
+  payload: Partial<IJobs>,
+  employee: JwtPayload
+) => {
   const job = await jobs.findById(jobId);
   if (!job) {
     throw Error("Job not found");
   }
 
+  const isUserExist = await user.findById(job?.postedBy);
+  if (!isUserExist) {
+    throw Error("User is not valid");
+  }
+
+  if (employee?.userType !== "admin") {
+    if (isUserExist.email !== employee?.email) {
+      throw Error("You are not the creator of this job");
+    }
+  }
   const updatedJob = await jobs.findByIdAndUpdate(jobId, payload, {
     new: true,
   });
   return updatedJob;
 };
 
-const deleteJobs = async (jobId: string) => {
+const deleteJobs = async (jobId: string, employee: JwtPayload) => {
   const job = await jobs.findById(jobId);
   if (!job) {
     throw Error("Job not found");
+  }
+  const isUserExist = await user.findById(job?.postedBy);
+  if (!isUserExist) {
+    throw Error("User is not valid");
+  }
+
+  if (employee?.userType !== "admin") {
+    if (isUserExist.email !== employee?.email) {
+      throw Error("You are not the creator of this job");
+    }
   }
 
   const deletedJob = await jobs.findByIdAndDelete(jobId, {
