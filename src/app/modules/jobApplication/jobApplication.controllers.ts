@@ -1,26 +1,37 @@
 import { Request, Response } from "express";
 import {
-  jobApplicationValidation,
   updateJobApplicationValidation,
 } from "./jobApplication.validation";
 import { jobApplicationServices } from "./jobApplication.service";
-import mongoose from "mongoose";
 
 const applyJob = async (req: Request, res: Response) => {
   try {
-    const validateJobApplication = jobApplicationValidation.parse(req.body);
-    const updatedValidateJobApplication = {
-      ...validateJobApplication,
-      job: new mongoose.Types.ObjectId(validateJobApplication?.job),
-      applicant: new mongoose.Types.ObjectId(req.loggedUser?.userId), // logged in user's userId set here
-    };
-    const result = await jobApplicationServices.jobApply(
-      req.file,
-      updatedValidateJobApplication
-    );
+    const { trxId } = req.params;
+    const result = await jobApplicationServices.jobApply(req.file, trxId,req.loggedUser?.userId);
     res.json({
       success: true,
       message: "Applied Successfully successfully",
+      data: result,
+    });
+  } catch (err: any) {
+    res.json({
+      success: false,
+      message: err?.message,
+      stack: err?.stack,
+    });
+  }
+};
+
+const payForJob = async (req: Request, res: Response) => {
+  const { jobId } = req.params;
+  try {
+    const result = await jobApplicationServices.paySuccessfully(
+      jobId,
+      req.loggedUser?.userId
+    );
+    res.json({
+      success: true,
+      message: "Payment successfully",
       data: result,
     });
   } catch (err: any) {
@@ -59,9 +70,7 @@ const updateAppliedJob = async (req: Request, res: Response) => {
 
 const getMyCreateJob = async (req: Request, res: Response) => {
   try {
-    const result = await jobApplicationServices.getMyCreateJob(
-      req.loggedUser
-    );
+    const result = await jobApplicationServices.getMyCreateJob(req.loggedUser);
     res.json({
       success: true,
       message: "Application found successfully",
@@ -115,11 +124,11 @@ const getAllAppliedJob = async (req: Request, res: Response) => {
   }
 };
 
-
 export const jobApplicantsControllers = {
   applyJob,
   updateAppliedJob,
   getAllAppliedJob,
   getMyAppliedJob,
-  getMyCreateJob
+  getMyCreateJob,
+  payForJob,
 };

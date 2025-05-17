@@ -7,45 +7,38 @@ import user from "../user/user.model";
 import mongoose from "mongoose";
 import invoice from "../invoice/invoice.model";
 
-const jobApply = async (file: any, applicationInfo: IJobApplication) => {
-  const isJobExist = await jobs.findById(applicationInfo.job);
+const jobApply = async (file: any, trxId: string, currentUser: string) => {
+  const isJobExist = await jobApplication.findOne({ transactionId: trxId });
   if (!isJobExist) {
-    throw Error("This job is not found!");
-  }
-
-  const alreadyApplied = await jobApplication.findOne({
-    job: applicationInfo.job,
-    applicant: applicationInfo.applicant,
-    paymentStatus: "paid",
-  });
-  if (alreadyApplied) {
-    throw Error("You have already applied for this job.");
+    throw Error("This not transaction!");
   }
 
   const session = await mongoose.startSession();
   session.startTransaction();
 
   try {
-    const { secure_url } = await sendPdf(
-      `${applicationInfo.transactionId}_pdf`,
-      file?.path
+    const { secure_url } = await sendPdf(`${trxId}_pdf`, file?.path);
+    const paymentStatus = "paid";
+    const resume = secure_url;
+
+    const updatedApplication = await jobApplication.findByIdAndUpdate(
+      isJobExist._id,
+      {
+        resume,
+        paymentStatus,
+      },
+      { new: true, session }
     );
 
-    applicationInfo.resume = secure_url;
-    applicationInfo.paymentStatus = "paid";
-    applicationInfo.amount = applicationInfo.amount || 100;
-
-    const result = await jobApplication.create([applicationInfo], { session });
-
-    if (!result.length) {
-      throw Error("Failed to create job application");
+    if (!updatedApplication) {
+      throw Error("Failed to send resume");
     }
 
     const invoiceData = {
-      transactionId: result[0].transactionId,
-      user: result[0].applicant,
-      job: result[0].job,
-      amount: result[0].amount,
+      transactionId: trxId,
+      user: currentUser,
+      job: isJobExist?._id,
+      amount: 100,
     };
 
     await invoice.create([invoiceData], { session });
@@ -62,6 +55,42 @@ const jobApply = async (file: any, applicationInfo: IJobApplication) => {
     session.endSession();
     throw new Error(err.message || "Something went wrong");
   }
+};
+
+const paySuccessfully = async (jobId: string, loggedApplicant: string) => {
+  const isJobExist = await jobs.findById(jobId);
+  if (!isJobExist) {
+    throw Error("This job is not found!");
+  }
+
+  const alreadyApplied = await jobApplication.findOne({
+    job: jobId,
+    applicant: loggedApplicant,
+    paymentStatus: "paid",
+  });
+  if (alreadyApplied) {
+    throw Error("You have already applied for this job.");
+  }
+
+  const transactionId = `TXN_${Date.now()}_${Math.floor(
+    Math.random() * 10000
+  )}`;
+  const paymentStatus = "paid";
+  const amount = 100;
+  const status = "pending";
+  const applicant = new mongoose.Types.ObjectId(loggedApplicant);
+  const job = new mongoose.Types.ObjectId(jobId);
+
+  const result = await jobApplication.create({
+    transactionId,
+    paymentStatus,
+    amount,
+    status,
+    applicant,
+    job,
+  });
+
+  return result;
 };
 
 const updateJobApply = async (
@@ -178,4 +207,5 @@ export const jobApplicationServices = {
   getAllApplication,
   getMyApplications,
   getMyCreateJob,
+  paySuccessfully,
 };

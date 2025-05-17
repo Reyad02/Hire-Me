@@ -15,7 +15,6 @@ const jobApplicationSchema = new Schema<IJobApplication>(
     },
     resume: {
       type: String,
-      required: true,
     },
     paymentStatus: {
       type: String,

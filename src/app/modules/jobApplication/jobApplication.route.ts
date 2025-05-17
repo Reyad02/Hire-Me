@@ -5,36 +5,33 @@ import userAccess from "../../middlewares/userAccess";
 
 const jobApplicantsRoutes = Router();
 
-jobApplicantsRoutes.post(
-  "/apply",
+jobApplicantsRoutes.put(
+  "/apply/:trxId",
   userAccess("job_seeker"),
   (req: Request, res: Response, next: NextFunction) => {
     upload.single("file")(req, res, function (err: any) {
       if (err) {
         if (err.code === "LIMIT_FILE_SIZE") {
-          return res
-            .status(400)
-            .json({
-              success: false,
-              message: "File too large. Max 5MB allowed.",
-            });
+          return res.status(400).json({
+            success: false,
+            message: "File too large. Max 5MB allowed.",
+            stack: err?.stack,
+          });
         }
-        return res.status(400).json({ success: false, message: err.message });
+        return res
+          .status(400)
+          .json({ success: false, message: err.message, stack: err?.stack });
       }
-
-      try {
-        req.body = JSON.parse(req.body?.data);
-        next();
-      } catch (parseErr: any) {
-        return res.status(400).json({
-          success: false,
-          message: "Invalid JSON in form data",
-          error: parseErr.message,
-        });
-      }
+      next();
     });
   },
   jobApplicantsControllers.applyJob
+);
+
+jobApplicantsRoutes.get(
+  "/pay/:jobId",
+  userAccess("job_seeker"),
+  jobApplicantsControllers.payForJob
 );
 
 jobApplicantsRoutes.patch(
