@@ -13,6 +13,10 @@ const jobApply = async (file: any, trxId: string, currentUser: string) => {
     throw Error("This not transaction!");
   }
 
+  if (isJobExist?.paymentStatus === "pending") {
+    throw Error("pay first");
+  }
+
   const session = await mongoose.startSession();
   session.startTransaction();
 
