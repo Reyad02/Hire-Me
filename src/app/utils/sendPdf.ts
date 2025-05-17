@@ -4,7 +4,6 @@ import config from "../config";
 import path from "path";
 import { Request } from "express";
 
-
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const cloudinary = require("cloudinary").v2;
 
@@ -18,6 +17,7 @@ export const sendPdf = async (pdfName: string, path: string) => {
   try {
     const result = await cloudinary.uploader.upload(path, {
       public_id: pdfName,
+      resource_type: "raw",
     });
 
     // delete saved file in uploads folder
@@ -44,7 +44,7 @@ const storage = multer.diskStorage({
   },
 });
 
-const fileFilter = (req:Request, file:any, cb:FileFilterCallback) => {
+const fileFilter = (req: Request, file: any, cb: FileFilterCallback) => {
   const fileExt = path.extname(file.originalname).toLowerCase();
   if (fileExt === ".pdf") {
     cb(null, true);

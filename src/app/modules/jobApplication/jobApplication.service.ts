@@ -5,6 +5,7 @@ import { IJobApplication } from "./jobApplication.interface";
 import jobApplication from "./jobApplication.model";
 import user from "../user/user.model";
 import mongoose from "mongoose";
+import invoice from "../invoice/invoice.model";
 
 const jobApply = async (file: any, applicationInfo: IJobApplication) => {
   const isJobExist = await jobs.findById(applicationInfo.job);
@@ -21,17 +22,48 @@ const jobApply = async (file: any, applicationInfo: IJobApplication) => {
     throw Error("You have already applied for this job.");
   }
 
-  const { secure_url } = await sendPdf(
-    `${applicationInfo.transactionId}_pdf`,
-    file?.path
-  );
-  applicationInfo.resume = secure_url;
-  applicationInfo.paymentStatus = "paid";
-  applicationInfo.amount = applicationInfo.amount || 100;
+  const session = await mongoose.startSession();
+  session.startTransaction(); 
 
-  const result = await jobApplication.create(applicationInfo);
-  return result;
+  try {
+    const { secure_url } = await sendPdf(
+      `${applicationInfo.transactionId}_pdf`,
+      file?.path
+    );
+
+    applicationInfo.resume = secure_url;
+    applicationInfo.paymentStatus = "paid";
+    applicationInfo.amount = applicationInfo.amount || 100;
+
+    const result = await jobApplication.create([applicationInfo], { session });
+
+    if (!result.length) {
+      throw Error("Failed to create job application");
+    }
+
+    const invoiceData = {
+      transactionId: result[0].transactionId,
+      user: result[0].applicant,
+      job: result[0].job,
+      amount: result[0].amount,
+    };
+
+    await invoice.create([invoiceData], { session });
+
+    await session.commitTransaction();
+    session.endSession();
+
+    return {
+      success: true,
+      message: "Job applied and invoice created successfully",
+    };
+  } catch (err: any) {
+    await session.abortTransaction();
+    session.endSession();
+    throw new Error(err.message || "Something went wrong");
+  }
 };
+
 
 const updateJobApply = async (
   application_id: string,
