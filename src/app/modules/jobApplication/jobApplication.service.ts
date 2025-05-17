@@ -23,7 +23,7 @@ const jobApply = async (file: any, applicationInfo: IJobApplication) => {
   }
 
   const session = await mongoose.startSession();
-  session.startTransaction(); 
+  session.startTransaction();
 
   try {
     const { secure_url } = await sendPdf(
@@ -63,7 +63,6 @@ const jobApply = async (file: any, applicationInfo: IJobApplication) => {
     throw new Error(err.message || "Something went wrong");
   }
 };
-
 
 const updateJobApply = async (
   application_id: string,
@@ -154,6 +153,16 @@ const getMyCreateJob = async (loggedInUserInfo: JwtPayload) => {
       },
     },
     { $unwind: "$job.postedBy" },
+
+    {
+      $lookup: {
+        from: "users",
+        localField: "applicant",
+        foreignField: "_id",
+        as: "applicant",
+      },
+    },
+    { $unwind: "$applicant" },
   ]);
 
   if (!result.length) {
