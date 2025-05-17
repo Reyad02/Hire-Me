@@ -1,9 +1,9 @@
 import { Types } from "mongoose";
 
-  export interface IJobs {
+export interface IJobs {
   title: string;
   description: string;
   salary: number;
-  postedBy: Types.ObjectId
+  postedBy: Types.ObjectId;
+  company: string;
 }
-  

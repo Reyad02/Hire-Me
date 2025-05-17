@@ -1,6 +1,9 @@
-import multer from "multer";
+import multer, { FileFilterCallback } from "multer";
 import fs from "fs";
 import config from "../config";
+import path from "path";
+import { Request } from "express";
+
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const cloudinary = require("cloudinary").v2;
@@ -41,4 +44,17 @@ const storage = multer.diskStorage({
   },
 });
 
-export const upload = multer({ storage: storage });
+const fileFilter = (req:Request, file:any, cb:FileFilterCallback) => {
+  const fileExt = path.extname(file.originalname).toLowerCase();
+  if (fileExt === ".pdf") {
+    cb(null, true);
+  } else {
+    cb(new Error("Only PDF files are allowed!"));
+  }
+};
+
+export const upload = multer({
+  storage: storage,
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter,
+});

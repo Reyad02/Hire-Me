@@ -20,7 +20,7 @@ const routes = [
     route: jobsRoutes,
   },
   {
-    path: "/apply",
+    path: "/jobApplication",
     route: jobApplicantsRoutes,
   },
 ];

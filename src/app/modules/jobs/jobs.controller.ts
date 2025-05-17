@@ -86,7 +86,8 @@ const getJob = async (req: Request, res: Response) => {
 
 const getAllJobs = async (req: Request, res: Response) => {
   try {
-    const result = await jobsServices.getAllJobs();
+    const { company } = req.query;
+    const result = await jobsServices.getAllJobs(company as string);
     res.status(200).json({
       success: true,
       message: "Jobs retrieved successfully",

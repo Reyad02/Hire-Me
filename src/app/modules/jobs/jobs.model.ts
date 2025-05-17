@@ -10,7 +10,8 @@ const jobSchema = new Schema<IJobs>(
       type: Schema.Types.ObjectId,
       ref: "user",
       required: true,
-    }, 
+    },
+    company: { type: String, required: true },
   },
   { timestamps: true }
 );

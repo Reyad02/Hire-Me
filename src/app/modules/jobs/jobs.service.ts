@@ -69,8 +69,12 @@ const getJob = async (jobId: string) => {
   return job;
 };
 
-const getAllJobs = async () => {
-  const allJobs = await jobs.find().populate("postedBy");
+const getAllJobs = async (company: string) => {
+  const filter: Record<string, any> = {};
+  if (company) {
+    filter.company = company;
+  }
+  const allJobs = await jobs.find(filter).populate("postedBy");
   if (allJobs.length < 1) {
     throw Error("Jobs not found");
   }
