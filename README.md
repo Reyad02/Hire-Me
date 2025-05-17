@@ -86,3 +86,6 @@ PUT ```/jobApplication/apply/:trxId```
 - **If the payment is not found or invalid:**
      - The resume is rejected.
      - Throw an Error
+
+## API Documentation
+https://documenter.getpostman.com/view/38349072/2sB2qWHjfd
